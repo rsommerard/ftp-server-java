@@ -45,13 +45,17 @@ public class Request {
             this.type = RequestType.SYST;
             this.typeString = Constants.SYST_TYPE_REQUEST;
         }
-        else if(type.contains(Constants.FEAT_TYPE_REQUEST)) {
-            this.type = RequestType.FEAT;
-            this.typeString = Constants.FEAT_TYPE_REQUEST;
-        }
         else if(type.contains(Constants.PWD_TYPE_REQUEST)) {
             this.type = RequestType.PWD;
             this.typeString = Constants.PWD_TYPE_REQUEST;
+        }
+        else if(type.contains(Constants.LIST_TYPE_REQUEST)) {
+            this.type = RequestType.LIST;
+            this.typeString = Constants.LIST_TYPE_REQUEST;
+        }
+        else if(type.contains(Constants.QUIT_TYPE_REQUEST)) {
+            this.type = RequestType.QUIT;
+            this.typeString = Constants.QUIT_TYPE_REQUEST;
         }
         else {
             this.type = RequestType.UNKNOWN;

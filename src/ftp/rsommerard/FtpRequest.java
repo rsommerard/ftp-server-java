@@ -4,10 +4,10 @@ import com.sun.tools.internal.jxc.apt.Const;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-import static ftp.rsommerard.RequestType.USER;
 
 /**
  * Created by Romain on 27/01/15.
@@ -27,7 +27,7 @@ public class FtpRequest implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("[FtpRequest::run] Thread FtpRequest created");
+        System.out.println("[FtpRequest::run]");
 
         try {
             this.sendMessage(Constants.MSG_220);
@@ -41,7 +41,7 @@ public class FtpRequest implements Runnable {
         String requestString = this.bufferReader.readLine();
         Request request = new Request(requestString);
 
-        System.out.println("[FtpRequest::processRequest] Request: " + requestString);
+        System.out.println("[FtpRequest::processRequest] " + requestString);
 
         switch(request.getType()) {
             case USER:
@@ -53,19 +53,24 @@ public class FtpRequest implements Runnable {
             case SYST:
                 this.processSyst(request);
                 break;
-            case FEAT:
-                this.processFeat(request);
-                break;
             case PWD:
                 this.processPwd(request);
                 break;
+            case LIST:
+                this.processList(request);
+                break;
+            case QUIT:
+                this.processQuit(request);
+                break;
             default:
-                throw new RuntimeException("Request Unknown: " + requestString);
+                this.sendMessage(Constants.MSG_502);
+                this.processRequest();
+                break;
         }
     }
 
     private void processUser(Request request) throws Exception {
-        System.out.println("[FtpRequest::processUser] Username: " + request.getArgument());
+        System.out.println("[FtpRequest::processUser]");
 
         if(Constants.ANONYMOUS_USER.equals(request.getArgument())) {
             this.sendMessage(Constants.MSG_230);
@@ -78,7 +83,7 @@ public class FtpRequest implements Runnable {
     }
 
     private void processPass(Request request) throws Exception {
-        System.out.println("[FtpRequest::processPass] Password: " + request.getArgument());
+        System.out.println("[FtpRequest::processPass]");
 
         if(Constants.DEMO_PASS.equals(request.getArgument())) {
             this.sendMessage(Constants.MSG_230);
@@ -87,26 +92,38 @@ public class FtpRequest implements Runnable {
         this.processRequest();
     }
 
-    private void processFeat(Request request) throws Exception {
-        System.out.println("[FtpRequest::processFeat] Feat: Not implemented");
-        this.sendMessage(Constants.MSG_202);
-        this.processRequest();
-    }
-
     private void processSyst(Request request) throws Exception {
-        System.out.println("[FtpRequest::processSyst] System: Unix");
+        System.out.println("[FtpRequest::processSyst]");
         this.sendMessage(Constants.MSG_215.replace("NAME", "Unix"));
         this.processRequest();
     }
 
     private void processPwd(Request request) throws Exception {
         System.out.println("[FtpRequest::processPwd]");
-        this.sendMessage(Constants.MSG_257.replace("DIRECTORY", System.getProperty("user.dir")));
+        this.sendMessage(Constants.MSG_257.replace("DIRECTORY", System.getProperty("user.dir") + "/server/public/"));
         this.processRequest();
     }
 
+    private void processList(Request request) throws Exception {
+        System.out.println("[FtpRequest::processList]");
+        this.sendMessage(Constants.MSG_125);
+        File folder = new File(System.getProperty("user.dir") + "/server/public/");
+        String files = "";
+        for (File fileEntry : folder.listFiles()) {
+            this.sendMessage(fileEntry.getName() + "\n");
+        }
+        this.sendMessage(Constants.MSG_226);
+        this.processRequest();
+    }
+
+    private void processQuit(Request request) throws Exception {
+        System.out.println("[FtpRequest::processQuit]");
+        this.sendMessage(Constants.MSG_221);
+        this.socket.close();
+    }
+
     private void sendMessage(String message) throws Exception {
-        System.out.println("[FtpRequest::sendMessage] Message: " + message);
+        System.out.println("[FtpRequest::sendMessage] " + message);
 
         this.dataOutputStream.writeBytes(message);
         this.dataOutputStream.flush();

@@ -8,6 +8,7 @@ public enum RequestType {
     USER,
     PASS,
     SYST,
-    FEAT,
+    LIST,
+    QUIT,
     PWD
 }
