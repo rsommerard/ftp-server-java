@@ -5,7 +5,7 @@ package ftp.rsommerard;
  */
 public class Request {
 
-    private RequestType type;
+    private RequestTypeEnum type;
     private String typeString;
     private String argument;
 
@@ -20,7 +20,7 @@ public class Request {
         }
     }
 
-    public RequestType getType() {
+    public RequestTypeEnum getType() {
         return this.type;
     }
 
@@ -34,31 +34,51 @@ public class Request {
 
     private void setType(String type) {
         if(type.contains(Constants.USER_TYPE_USER)) {
-            this.type = RequestType.USER;
+            this.type = RequestTypeEnum.USER;
             this.typeString = Constants.USER_TYPE_USER;
         }
         else if(type.contains(Constants.PASS_TYPE_REQUEST)) {
-            this.type = RequestType.PASS;
+            this.type = RequestTypeEnum.PASS;
             this.typeString = Constants.PASS_TYPE_REQUEST;
         }
         else if(type.contains(Constants.SYST_TYPE_REQUEST)) {
-            this.type = RequestType.SYST;
+            this.type = RequestTypeEnum.SYST;
             this.typeString = Constants.SYST_TYPE_REQUEST;
         }
         else if(type.contains(Constants.PWD_TYPE_REQUEST)) {
-            this.type = RequestType.PWD;
+            this.type = RequestTypeEnum.PWD;
             this.typeString = Constants.PWD_TYPE_REQUEST;
         }
+        else if(type.contains(Constants.CDUP_TYPE_REQUEST)) {
+            this.type = RequestTypeEnum.CDUP;
+            this.typeString = Constants.CDUP_TYPE_REQUEST;
+        }
+        else if(type.contains(Constants.CWD_TYPE_REQUEST)) {
+            this.type = RequestTypeEnum.CWD;
+            this.typeString = Constants.CWD_TYPE_REQUEST;
+        }
+        else if(type.contains(Constants.PASV_TYPE_REQUEST)) {
+            this.type = RequestTypeEnum.PASV;
+            this.typeString = Constants.PASV_TYPE_REQUEST;
+        }
         else if(type.contains(Constants.LIST_TYPE_REQUEST)) {
-            this.type = RequestType.LIST;
+            this.type = RequestTypeEnum.LIST;
             this.typeString = Constants.LIST_TYPE_REQUEST;
         }
         else if(type.contains(Constants.QUIT_TYPE_REQUEST)) {
-            this.type = RequestType.QUIT;
+            this.type = RequestTypeEnum.QUIT;
             this.typeString = Constants.QUIT_TYPE_REQUEST;
         }
+        else if(type.contains(Constants.STOR_TYPE_REQUEST)) {
+            this.type = RequestTypeEnum.STOR;
+            this.typeString = Constants.STOR_TYPE_REQUEST;
+        }
+        else if(type.contains(Constants.RETR_TYPE_REQUEST)) {
+            this.type = RequestTypeEnum.RETR;
+            this.typeString = Constants.RETR_TYPE_REQUEST;
+        }
         else {
-            this.type = RequestType.UNKNOWN;
+            this.type = RequestTypeEnum.UNKNOWN;
             this.typeString = Constants.UNKNOWN_TYPE_REQUEST;
         }
     }
