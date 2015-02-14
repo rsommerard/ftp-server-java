@@ -6,7 +6,6 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-
 /**
  * Created by Romain on 27/01/15.
  */
@@ -22,19 +21,20 @@ public class FtpRequest implements Runnable {
 
     private boolean anonymousUser;
     private boolean loggedUser;
+    private String username;
 
     private boolean process;
 
-    public FtpRequest(Socket piSocket) throws Exception {
+    public FtpRequest(Socket piSocket, ServerSocket dtpServerSocket) throws Exception {
         this.piSocket = piSocket;
         this.piBufferReader = new BufferedReader(new InputStreamReader(this.piSocket.getInputStream()));
         this.piDataOutputStream = new DataOutputStream(this.piSocket.getOutputStream());
-        this.dtpServerSocket = new ServerSocket(3637);
+        this.dtpServerSocket = dtpServerSocket;
         this.directory = System.getProperty("user.dir") + "/server/public/";
         this.anonymousUser = true;
         this.loggedUser = false;
         this.process = true;
-        new Thread(this).start();
+        this.username = Constants.ANONYMOUS_USER;
     }
 
     @Override
@@ -108,9 +108,11 @@ public class FtpRequest implements Runnable {
             this.sendMessage(Constants.MSG_230);
             this.loggedUser = true;
             this.anonymousUser = true;
+            this.username = Constants.ANONYMOUS_USER;
         }
         else if(Constants.DEMO_USER.equals(request.getArgument())) {
             this.sendMessage(Constants.MSG_331);
+            this.username = Constants.DEMO_USER;
         }
         else {
             this.sendMessage(Constants.MSG_332);
@@ -120,7 +122,7 @@ public class FtpRequest implements Runnable {
     private void processPass(Request request) throws Exception {
         System.out.println("[FtpRequest::processPass]");
 
-        if(Constants.DEMO_PASS.equals(request.getArgument())) {
+        if(Constants.DEMO_USER.equals(this.username) && Constants.DEMO_PASS.equals(request.getArgument())) {
             this.sendMessage(Constants.MSG_230);
             this.anonymousUser = false;
             this.loggedUser = true;
@@ -128,7 +130,6 @@ public class FtpRequest implements Runnable {
         else {
             this.sendMessage(Constants.MSG_332);
         }
-
     }
 
     private void processRetr(Request request) throws Exception {
@@ -158,6 +159,7 @@ public class FtpRequest implements Runnable {
         }
 
         if(this.anonymousUser) {
+            this.sendMessage(Constants.MSG_200.replace("DIRECTORY", this.directory));
             return;
         }
 
@@ -172,14 +174,20 @@ public class FtpRequest implements Runnable {
         }
         else if(!Constants.CURRENT_DIRECTORY.equals(request.getArgument())) {
             if(request.getArgument().startsWith("/")) {
-                this.directory = request.getArgument();
+                if(!Constants.NONE.equals(request.getArgument())) {
+                    this.directory = request.getArgument();
+                }
             }
             else {
                 if(Constants.RACINE_DIRECTORY.equals(this.directory)) {
-                    this.directory += request.getArgument();
+                    if(!Constants.NONE.equals(request.getArgument())) {
+                        this.directory += request.getArgument();
+                    }
                 }
                 else {
-                    this.directory += "/" + request.getArgument();
+                    if(!Constants.NONE.equals(request.getArgument())) {
+                        this.directory += "/" + request.getArgument();
+                    }
                 }
             }
         }
@@ -195,6 +203,7 @@ public class FtpRequest implements Runnable {
         }
 
         if(this.anonymousUser) {
+            this.sendMessage(Constants.MSG_200.replace("DIRECTORY", this.directory));
             return;
         }
 
@@ -265,10 +274,6 @@ public class FtpRequest implements Runnable {
 
     private void processQuit(Request request) throws Exception {
         System.out.println("[FtpRequest::processQuit]");
-        if(!loggedUser) {
-            this.sendMessage(Constants.MSG_530);
-            return;
-        }
         this.sendMessage(Constants.MSG_221);
         this.process = false;
     }
@@ -290,7 +295,6 @@ public class FtpRequest implements Runnable {
 
         this.sendMessage(Constants.MSG_226);
         this.dtpSocket.close();
-        this.dtpSocket = null;
     }
 
     private void sendFile(String filename) throws Exception {
@@ -316,7 +320,6 @@ public class FtpRequest implements Runnable {
 
         this.sendMessage(Constants.MSG_226);
         this.dtpSocket.close();
-        this.dtpSocket = null;
     }
 
     private void receiveFile(String filename) throws Exception {
@@ -341,6 +344,5 @@ public class FtpRequest implements Runnable {
 
         this.sendMessage(Constants.MSG_226);
         this.dtpSocket.close();
-        this.dtpSocket = null;
     }
 }

@@ -23,7 +23,7 @@ public class Constants {
     public static final String MSG_502 = "502 Command not implemented.\r\n";
     public static final String MSG_530 = "530 Not logged in.\r\n";
 
-    public static final String USER_TYPE_USER = "USER";
+    public static final String USER_TYPE_REQUEST = "USER";
     public static final String PASS_TYPE_REQUEST = "PASS";
     public static final String SYST_TYPE_REQUEST = "SYST";
     public static final String PWD_TYPE_REQUEST = "PWD";

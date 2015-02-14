@@ -33,9 +33,9 @@ public class Request {
     }
 
     private void setType(String type) {
-        if(type.contains(Constants.USER_TYPE_USER)) {
+        if(type.contains(Constants.USER_TYPE_REQUEST)) {
             this.type = RequestTypeEnum.USER;
-            this.typeString = Constants.USER_TYPE_USER;
+            this.typeString = Constants.USER_TYPE_REQUEST;
         }
         else if(type.contains(Constants.PASS_TYPE_REQUEST)) {
             this.type = RequestTypeEnum.PASS;
