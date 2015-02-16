@@ -162,6 +162,52 @@ public class FtpRequestTest {
     }
 
     @Test
+    public void testProcessSyst() throws IOException {
+        Socket socket = new Socket(server.getAddress(), server.getPiPort());
+
+        this.readMessage(socket);
+        String cmd = "SYST\r\n";
+        this.sendMessage(socket, cmd);
+        String responseServer = this.readMessage(socket);
+        assertEquals("Response error.", Constants.MSG_530.replace("\r\n", ""), responseServer);
+        socket.close();
+        socket = null;
+
+        socket = new Socket(server.getAddress(), server.getPiPort());
+        this.readMessage(socket);
+        cmd = "USER demo\r\n";
+        this.sendMessage(socket, cmd);
+        this.readMessage(socket);
+        cmd = "PASS demo\r\n";
+        this.sendMessage(socket, cmd);
+        this.readMessage(socket);
+        cmd = "SYST\r\n";
+        this.sendMessage(socket, cmd);
+        responseServer = this.readMessage(socket);
+        assertEquals("Response error.", Constants.MSG_215.replace("\r\n", ""), responseServer);
+        socket.close();
+        socket = null;
+    }
+
+    @Test
+    public void testProcessQuit() throws IOException {
+        Socket socket = new Socket(server.getAddress(), server.getPiPort());
+        this.readMessage(socket);
+        String cmd = "USER demo\r\n";
+        this.sendMessage(socket, cmd);
+        this.readMessage(socket);
+        cmd = "PASS demo\r\n";
+        this.sendMessage(socket, cmd);
+        this.readMessage(socket);
+        cmd = "QUIT\r\n";
+        this.sendMessage(socket, cmd);
+        String responseServer = this.readMessage(socket);
+        assertEquals("Response error.", Constants.MSG_221.replace("\r\n", ""), responseServer);
+        socket.close();
+        socket = null;
+    }
+
+    @Test
     public void testProcessCwd() throws IOException {
         Socket socket = new Socket(server.getAddress(), server.getPiPort());
 
@@ -182,13 +228,14 @@ public class FtpRequestTest {
         this.sendMessage(socket, cmd);
         responseServer = this.readMessage(socket);
         assertTrue("Response error.", responseServer.contains("200"));
-        assertTrue("Response error.", responseServer.contains("server/public/"));
+        System.out.println(responseServer);
+        assertTrue("Response error.", responseServer.contains("/tmp/server/public"));
 
         cmd = "CWD /tmp/\r\n";
         this.sendMessage(socket, cmd);
         responseServer = this.readMessage(socket);
         assertTrue("Response error.", responseServer.contains("200"));
-        assertTrue("Response error.", responseServer.contains("server/public/"));
+        assertTrue("Response error.", responseServer.contains("/tmp/server/public"));
         socket.close();
         socket = null;
 
@@ -204,13 +251,55 @@ public class FtpRequestTest {
         this.sendMessage(socket, cmd);
         responseServer = this.readMessage(socket);
         assertTrue("Response error.", responseServer.contains("200"));
-        assertTrue("Response error.", responseServer.contains("server/public/"));
+        assertTrue("Response error.", responseServer.contains("/tmp/server/public"));
 
         cmd = "CWD /tmp/\r\n";
         this.sendMessage(socket, cmd);
         responseServer = this.readMessage(socket);
         assertTrue("Response error.", responseServer.contains("200"));
-        assertTrue("Response error.", responseServer.contains("/tmp/"));
+        assertTrue("Response error.", responseServer.contains("/tmp"));
+        socket.close();
+        socket = null;
+    }
+
+    @Test
+    public void testProcessPwd() throws IOException {
+        Socket socket = new Socket(server.getAddress(), server.getPiPort());
+
+        this.readMessage(socket);
+        String cmd = "PWD\r\n";
+        this.sendMessage(socket, cmd);
+        String responseServer = this.readMessage(socket);
+        assertEquals("Response error.", Constants.MSG_530.replace("\r\n", ""), responseServer);
+        socket.close();
+        socket = null;
+
+        socket = new Socket(server.getAddress(), server.getPiPort());
+        this.readMessage(socket);
+        cmd = "USER anonymous\r\n";
+        this.sendMessage(socket, cmd);
+        this.readMessage(socket);
+        cmd = "PWD\r\n";
+        this.sendMessage(socket, cmd);
+        responseServer = this.readMessage(socket);
+        assertTrue("Response error.", responseServer.contains("257"));
+        assertTrue("Response error.", responseServer.contains("server/public"));
+        socket.close();
+        socket = null;
+
+        socket = new Socket(server.getAddress(), server.getPiPort());
+        this.readMessage(socket);
+        cmd = "USER demo\r\n";
+        this.sendMessage(socket, cmd);
+        this.readMessage(socket);
+        cmd = "PASS demo\r\n";
+        this.sendMessage(socket, cmd);
+        this.readMessage(socket);
+        cmd = "PWD\r\n";
+        this.sendMessage(socket, cmd);
+        responseServer = this.readMessage(socket);
+        assertTrue("Response error.", responseServer.contains("257"));
+        assertTrue("Response error.", responseServer.contains("server/public"));
         socket.close();
         socket = null;
     }
@@ -289,7 +378,7 @@ public class FtpRequestTest {
         String dtpResponseServer = this.readMessage(dtpSocket);
         responseServer = this.readMessage(socket);
         assertEquals("Response error.", Constants.MSG_226.replace("\r\n", ""), responseServer);
-        assertTrue("Response error.", responseServer.length() != 0);
+        assertTrue("Response error.", dtpResponseServer.length() != 0);
         socket.close();
         dtpSocket.close();
         socket = null;

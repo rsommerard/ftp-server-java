@@ -2,13 +2,30 @@ package ftp.rsommerard;
 
 /**
  * Created by Romain on 03/02/15.
+ * Represente une requete entrante sur le serveur.
  */
 public class Request {
 
+    /**
+     * Type de la commande.
+     */
     private RequestTypeEnum type;
+
+    /**
+     * Type de la commande pour affichage et mappage.
+     */
     private String typeString;
+
+    /**
+     * Argument de la commande.
+     */
     private String argument;
 
+    /**
+     * Constructeur Request
+     *
+     * @param request
+     */
     public Request(String request) {
         String[] _request = request.split(" ");
         this.setType(_request[0]);
@@ -20,18 +37,38 @@ public class Request {
         }
     }
 
+    /**
+     * Retourne le type de la commande.
+     *
+     * @return
+     */
     public RequestTypeEnum getType() {
         return this.type;
     }
 
+    /**
+     * Retourne le type de la commande.
+     *
+     * @return
+     */
     public String getTypeString() {
         return this.typeString;
     }
 
+    /**
+     * Retourne l'argument de la commande.
+     *
+     * @return
+     */
     public String getArgument() {
         return this.argument;
     }
 
+    /**
+     * Determine et ajoute le type de la commande.
+     *
+     * @param type
+     */
     private void setType(String type) {
         if(type.contains(Constants.USER_TYPE_REQUEST)) {
             this.type = RequestTypeEnum.USER;

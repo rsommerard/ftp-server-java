@@ -5,6 +5,8 @@ import java.net.Socket;
 
 /**
  * Created by Romain on 10/02/15.
+ * Classe principale.
+ * Lance le serveur dans un thread.
  */
 public class Main {
 
