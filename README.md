@@ -37,6 +37,7 @@ requêtes plus facile.
 - Classe FtpRequest, méthode run. Toutes les exceptions levées par les méthodes de
 traitements sont récupérées à un seul endroit.
 
+```java
   @Override
   public void run() {
     try {
@@ -46,9 +47,11 @@ traitements sont récupérées à un seul endroit.
       System.out.println("[FtpRequest::run] Error: " + exception.getMessage());
     }
   }
+```
 
 - Classe FtpRequest, méthode processRequest qui dispatche les requêtes reçues.
 
+```java
   private void processRequest() throws Exception {
     String requestString = this.piBufferReader.readLine();
     Request request = new Request(requestString);
@@ -75,9 +78,11 @@ traitements sont récupérées à un seul endroit.
       this.piSocket.close();
     }
   }
+```
 
 - Classe FtpRequest, méthode processCwd qui permet de changer le dossier courant.
 
+```java
   private void processCwd(Request request) throws Exception {
     if(!loggedUser) {
       this.sendMessage(Constants.MSG_530);
@@ -113,10 +118,12 @@ traitements sont récupérées à un seul endroit.
     }
     this.sendMessage(Constants.MSG_200.replace("DIRECTORY", this.directory));
   }
+```
 
 - Classe FtpRequest, méthode sendFile qui envoie le fichier demandé sur le canal
 de données.
 
+```java
   private void sendFile(String filename) throws Exception {
     this.sendMessage(Constants.MSG_125);
     DataOutputStream dtpDataOutputStream = new DataOutputStream(this.dtpSocket.getOutputStream());
@@ -133,11 +140,13 @@ de données.
     this.sendMessage(Constants.MSG_226);
     this.dtpSocket.close();
   }
+```
 
 - Classe FtpRequest, méthode sendMessage qui envoie un message sur le canal de
 commandes.
-
+```java
   private void sendMessage(String message) throws Exception {
     this.piDataOutputStream.writeBytes(message);
     this.piDataOutputStream.flush();
   }
+```
